@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Builder</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════ TOP BAR ═══════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      <span>Resume Builder</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-pdf"  class="btn btn-pdf">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF
+      </button>
+      <button id="btn-docx" class="btn btn-docx">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Word
+      </button>
+    </div>
+  </header>
+
+  <!-- ═════════════════════════ MAIN LAYOUT ═════════════════════════ -->
+  <main class="workspace">
+
+    <!-- ─────────────────── LEFT: FORM PANEL ─────────────────── -->
+    <aside class="form-panel" id="form-panel">
+
+      <!-- ── Template Selector ── -->
+      <section class="card tpl-selector-card">
+        <h2 class="card-title">Resume Template</h2>
+        <div class="tpl-grid">
+
+          <button class="tpl-opt active" data-tpl="classic" title="Classic">
+            <div class="tpl-thumb">
+              <div class="tt-hdr tt-hdr-classic"></div>
+              <div class="tt-line tt-c"></div>
+              <div class="tt-line tt-c tt-short"></div>
+              <div class="tt-sec tt-sec-classic"></div>
+              <div class="tt-line"></div><div class="tt-line tt-med"></div>
+              <div class="tt-sec tt-sec-classic"></div>
+              <div class="tt-line"></div><div class="tt-line tt-long"></div>
+            </div>
+            <span>Classic</span>
+          </button>
+
+          <button class="tpl-opt" data-tpl="modern" title="Modern">
+            <div class="tpl-thumb">
+              <div class="tt-hdr tt-hdr-modern-name"></div>
+              <div class="tt-hdr tt-hdr-modern-title"></div>
+              <div class="tt-line tt-med" style="margin-bottom:6px;"></div>
+              <div class="tt-sec tt-sec-modern"></div>
+              <div class="tt-line"></div><div class="tt-line tt-med"></div>
+              <div class="tt-sec tt-sec-modern"></div>
+              <div class="tt-line"></div><div class="tt-line tt-long"></div>
+            </div>
+            <span>Modern</span>
+          </button>
+
+          <button class="tpl-opt" data-tpl="executive" title="Executive">
+            <div class="tpl-thumb">
+              <div class="tt-exec-header">
+                <div class="tt-exec-name"></div>
+                <div class="tt-exec-sub"></div>
+              </div>
+              <div class="tt-sec tt-sec-exec"></div>
+              <div class="tt-line"></div><div class="tt-line tt-med"></div>
+              <div class="tt-sec tt-sec-exec"></div>
+              <div class="tt-line"></div><div class="tt-line tt-long"></div>
+            </div>
+            <span>Executive</span>
+          </button>
+
+          <button class="tpl-opt" data-tpl="minimal" title="Minimal">
+            <div class="tpl-thumb">
+              <div class="tt-min-name"></div>
+              <div class="tt-min-title"></div>
+              <div class="tt-min-sep"></div>
+              <div class="tt-sec tt-sec-minimal"></div>
+              <div class="tt-line tt-min-line"></div>
+              <div class="tt-line tt-med tt-min-line"></div>
+              <div class="tt-sec tt-sec-minimal"></div>
+              <div class="tt-line tt-min-line"></div>
+              <div class="tt-line tt-long tt-min-line"></div>
+            </div>
+            <span>Minimal</span>
+          </button>
+
+        </div>
+      </section>
+
+      <!-- Personal Info -->
+      <section class="card">
+        <h2 class="card-title">Personal Information</h2>
+
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="inp-name" placeholder="Jane Smith" />
+        </div>
+        <div class="field">
+          <label>Professional Title</label>
+          <input type="text" id="inp-title" placeholder="Senior Software Engineer" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="inp-email" placeholder="jane@example.com" />
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="text" id="inp-phone" placeholder="+1 (555) 000-0000" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Location</label>
+            <input type="text" id="inp-location" placeholder="New York, NY" />
+          </div>
+          <div class="field">
+            <label>LinkedIn</label>
+            <input type="text" id="inp-linkedin" placeholder="linkedin.com/in/janesmith" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Website / Portfolio</label>
+          <input type="text" id="inp-website" placeholder="github.com/janesmith" />
+        </div>
+      </section>
+
+      <!-- Summary -->
+      <section class="card">
+        <h2 class="card-title">Professional Summary</h2>
+        <div class="field">
+          <textarea id="inp-summary" rows="4"
+            placeholder="Experienced software engineer with 6+ years building scalable web applications. Passionate about clean architecture, developer experience, and delivering user-focused products."></textarea>
+        </div>
+      </section>
+
+      <!-- AI Enhancer -->
+      <section class="card">
+        <h2 class="card-title">AI Resume Enhancer (ATS)</h2>
+        <div class="field">
+          <label>Gemini API Key</label>
+          <input type="password" id="inp-gemini-key" placeholder="AIza..." autocomplete="off" />
+          <span class="hint">Used only for this enhancement request.</span>
+        </div>
+        <div class="field">
+          <label>Target Job Description (optional)</label>
+          <textarea id="inp-job-description" rows="4"
+            placeholder="Paste the job description to align keywords and phrasing for ATS matching."></textarea>
+        </div>
+        <button class="btn btn-ai" id="btn-ai-enhance" type="button">
+          Enhance Resume with AI
+        </button>
+        <p class="hint ai-keywords" id="ai-ats-keywords"></p>
+      </section>
+
+      <!-- Skills -->
+      <section class="card">
+        <h2 class="card-title">Skills</h2>
+        <div class="field">
+          <textarea id="inp-skills" rows="6"
+            placeholder="Languages: Java, JavaScript, TypeScript, PHP&#10;Frameworks &amp; Runtime: Spring Boot, Node.js, NestJS, Laravel, React&#10;Databases: MySQL, AWS DynamoDB&#10;Cloud &amp; DevOps: AWS (ECS Fargate, S3), CI/CD, Git&#10;Integrations: UPI/Payment Gateway APIs, REST APIs&#10;Other: AI Agents, MCP, Microservices Architecture"></textarea>
+          <span class="hint">One category per line — format: <strong>Category: item1, item2</strong></span>
+        </div>
+      </section>
+
+      <!-- Experience -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Experience</h2>
+          <button class="btn-add" id="btn-add-exp">+ Add</button>
+        </div>
+        <div id="exp-list" class="dynamic-list"></div>
+        <p class="empty-hint" id="exp-empty">No experience added yet.</p>
+      </section>
+
+      <!-- Projects -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Projects</h2>
+          <button class="btn-add" id="btn-add-proj">+ Add</button>
+        </div>
+        <div id="proj-list" class="dynamic-list"></div>
+        <p class="empty-hint" id="proj-empty">No projects added yet.</p>
+      </section>
+
+      <!-- Education -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Education</h2>
+          <button class="btn-add" id="btn-add-edu">+ Add</button>
+        </div>
+        <div id="edu-list" class="dynamic-list"></div>
+        <p class="empty-hint" id="edu-empty">No education added yet.</p>
+      </section>
+
+    </aside>
+
+    <!-- ─────────────────── RIGHT: PREVIEW PANEL ─────────────────── -->
+    <div class="preview-panel">
+      <div class="preview-toolbar">
+        <span class="preview-label">Live Preview</span>
+        <span class="preview-badge">Updates instantly</span>
+      </div>
+      <div class="preview-scroll">
+        <div class="a4-page" id="resume-preview">
+          <!-- JS renders here -->
+          <div class="placeholder-msg">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+            <p>Start filling in the form<br/>to see your resume here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Loading overlay -->
+  <div class="overlay" id="overlay">
+    <div class="spinner"></div>
+    <p id="overlay-msg">Generating…</p>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
+
+

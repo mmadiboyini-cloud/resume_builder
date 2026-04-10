@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= data.name || 'Resume' %></title>
+  <%
+    const tplId = data.templateId || 'classic';
+    const isModern    = tplId === 'modern';
+    const isExecutive = tplId === 'executive';
+    const isMinimal   = tplId === 'minimal';
+    // contact separator per template
+    const sep = isMinimal ? ' · ' : ' | ';
+  %>
+  <style>
+    /* ── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ── Base ───────────────────────────────────────────── */
+    body {
+      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.55;
+      color: #1a1a2e;
+      background: #ffffff;
+    }
+    .resume {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    .resume-header {
+      text-align: center;
+      border-bottom: 2px solid #1a3c6e;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+    .r-name {
+      font-size: 22pt; font-weight: 700;
+      color: #1a3c6e; letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .r-title  { font-size: 11.5pt; color: #4a5568; margin-top: 3px; }
+    .r-contact { font-size: 9.5pt; color: #555; margin-top: 6px; }
+    .r-sep { color: #aaa; margin: 0 6px; }
+
+    /* ── Sections ───────────────────────────────────────── */
+    .section { margin-bottom: 15px; }
+    .section:last-child { margin-bottom: 0; }
+    .section-heading {
+      font-size: 10.5pt; font-weight: 700;
+      color: #1a3c6e; text-transform: uppercase;
+      letter-spacing: 1.2px;
+      border-bottom: 1.5px solid #1a3c6e;
+      padding-bottom: 2px; margin-bottom: 9px;
+    }
+
+    /* ── Summary ────────────────────────────────────────── */
+    .summary-text { font-size: 10.5pt; line-height: 1.65; color: #2d3748; }
+
+    /* ── Skills ─────────────────────────────────────────── */
+    .skill-row { font-size: 10.5pt; color: #2d3748; line-height: 1.85; }
+    .skill-label { font-weight: 700; color: #1a1a2e; }
+
+    /* ── Entry ───────────────────────────────────────────── */
+    .entry { margin-bottom: 12px; }
+    .entry:last-child { margin-bottom: 0; }
+    .entry-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 8px;
+    }
+    .entry-left { flex: 1; }
+    .entry-role     { font-size: 11pt; font-weight: 700; color: #1a1a2e; }
+    .entry-company  { font-size: 10.5pt; color: #4a5568; font-style: italic; }
+    .entry-duration { font-size: 9.5pt; color: #718096; white-space: nowrap; padding-top: 2px; }
+    .bullets { margin-top: 5px; padding-left: 18px; }
+    .bullets li { font-size: 10.5pt; color: #2d3748; margin-bottom: 2px; line-height: 1.55; }
+
+    /* ── Education ───────────────────────────────────────── */
+    .edu-entry { margin-bottom: 10px; }
+    .edu-entry:last-child { margin-bottom: 0; }
+    .edu-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .edu-degree { font-size: 11pt; font-weight: 700; color: #1a1a2e; }
+    .edu-school { font-size: 10.5pt; color: #4a5568; font-style: italic; }
+    .edu-meta   { font-size: 9.5pt; color: #718096; margin-top: 1px; }
+    .edu-year   { font-size: 9.5pt; color: #718096; white-space: nowrap; }
+
+    /* ════════════════════════════════════════════════════════
+       TEMPLATE OVERRIDES
+       ════════════════════════════════════════════════════════ */
+
+    <% if (isModern) { %>
+    /* ── MODERN (teal, left-aligned) ──────────────────────── */
+    .resume-header {
+      text-align: left;
+      border-bottom: 2px solid #0d9488;
+    }
+    .r-name {
+      font-size: 26pt; font-weight: 800;
+      color: #0f172a; letter-spacing: -0.5px;
+      text-transform: none;
+    }
+    .r-title  { color: #0d9488; font-weight: 600; font-size: 12pt; }
+    .r-contact { color: #475569; }
+    .r-sep  { color: #94a3b8; }
+    .section-heading {
+      color: #0d9488;
+      border-bottom: none;
+      border-left: 3px solid #0d9488;
+      padding-left: 8px; padding-bottom: 0;
+      line-height: 1.4;
+    }
+    .entry-role { color: #0f172a; }
+    .skill-label { color: #0f172a; }
+    <% } %>
+
+    <% if (isExecutive) { %>
+    /* ── EXECUTIVE (dark header, blue accent) ─────────────── */
+    .resume-header {
+      background: #0f172a;
+      margin: -24px -32px 20px -32px;
+      padding: 24px 32px;
+      border-bottom: none;
+      text-align: center;
+    }
+    .r-name {
+      font-size: 23pt; font-weight: 700;
+      color: #f8fafc; letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .r-title   { color: #94a3b8; font-size: 11pt; }
+    .r-contact { color: #94a3b8; }
+    .r-sep     { color: #334155; }
+    .section-heading {
+      color: #1d4ed8;
+      border-bottom: none;
+      border-left: 3px solid #1d4ed8;
+      padding-left: 8px; padding-bottom: 0;
+      line-height: 1.4;
+    }
+    .entry-role { color: #1e293b; }
+    .edu-degree { color: #1e293b; }
+    <% } %>
+
+    <% if (isMinimal) { %>
+    /* ── MINIMAL (clean, understated) ─────────────────────── */
+    .resume-header {
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 12px;
+    }
+    .r-name {
+      font-size: 22pt; font-weight: 300;
+      color: #374151; letter-spacing: 0.5px;
+      text-transform: none;
+    }
+    .r-title   { font-size: 11pt; color: #6b7280; font-weight: 400; }
+    .r-contact { color: #9ca3af; font-size: 9pt; }
+    .r-sep     { color: #d1d5db; margin: 0 4px; }
+    .section-heading {
+      font-size: 9pt; font-weight: 600;
+      color: #6b7280; letter-spacing: 2.5px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 3px;
+    }
+    .entry-role    { font-weight: 600; color: #374151; font-size: 10.5pt; }
+    .entry-company { font-style: normal; color: #6b7280; }
+    .entry-duration { color: #9ca3af; }
+    .bullets li  { color: #4b5563; }
+    .skill-label { color: #374151; font-weight: 600; }
+    .skill-row   { color: #4b5563; }
+    .edu-degree  { font-weight: 600; color: #374151; font-size: 10.5pt; }
+    .edu-school  { font-style: normal; color: #6b7280; }
+    .edu-year    { color: #9ca3af; }
+    <% } %>
+  </style>
+</head>
+<body>
+<div class="resume">
+
+  <!-- HEADER -->
+  <div class="resume-header">
+    <% if (data.name && data.name.trim()) { %>
+      <div class="r-name"><%= data.name.trim() %></div>
+    <% } %>
+    <% if (data.title && data.title.trim()) { %>
+      <div class="r-title"><%= data.title.trim() %></div>
+    <% } %>
+    <%
+      const contactItems = [];
+      if (data.email    && data.email.trim())    contactItems.push(data.email.trim());
+      if (data.phone    && data.phone.trim())    contactItems.push(data.phone.trim());
+      if (data.location && data.location.trim()) contactItems.push(data.location.trim());
+      if (data.linkedin && data.linkedin.trim()) contactItems.push('<a href="' + (data.linkedin.startsWith('http') ? '' : 'https://') + data.linkedin.trim() + '" style="color:inherit;text-decoration:none;">LinkedIn</a>');
+      if (data.website  && data.website.trim())  contactItems.push(data.website.trim());
+    %>
+    <% if (contactItems.length > 0) { %>
+      <div class="r-contact">
+        <%- contactItems.join('<span class="r-sep">' + sep + '</span>') %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- SUMMARY -->
+  <% if (data.summary && data.summary.trim()) { %>
+  <div class="section">
+    <div class="section-heading">Professional Summary</div>
+    <p class="summary-text"><%= data.summary.trim() %></p>
+  </div>
+  <% } %>
+
+  <!-- SKILLS -->
+  <%
+    const skillLines = (typeof data.skills === 'string' ? data.skills : (data.skills || []).join('\n'))
+      .split('\n').map(l => l.trim()).filter(Boolean);
+  %>
+  <% if (skillLines.length > 0) { %>
+  <div class="section">
+    <div class="section-heading">Technical Skills</div>
+    <div class="skills-cat">
+      <% skillLines.forEach(line => {
+           const colon = line.indexOf(':');
+           if (colon > 0) {
+             const cat   = line.substring(0, colon).trim();
+             const items = line.substring(colon + 1).trim(); %>
+        <div class="skill-row"><span class="skill-label"><%= cat %>:</span>  <%= items %></div>
+      <%   } else { %>
+        <div class="skill-row"><%= line %></div>
+      <%   } }); %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- EXPERIENCE -->
+  <% const exps = (data.experience || []).filter(e => e.company || e.role); %>
+  <% if (exps.length > 0) { %>
+  <div class="section">
+    <div class="section-heading">Experience</div>
+    <% exps.forEach(exp => { %>
+      <div class="entry">
+        <div class="entry-top">
+          <div class="entry-left">
+            <% if (exp.role)    { %><div class="entry-role"><%= exp.role %></div><% } %>
+            <% if (exp.company) { %><div class="entry-company"><%= exp.company %></div><% } %>
+          </div>
+          <% if (exp.duration && exp.duration.trim()) { %>
+            <div class="entry-duration"><%= exp.duration.trim() %></div>
+          <% } %>
+        </div>
+        <% if (exp.responsibilities && exp.responsibilities.trim()) { %>
+          <ul class="bullets">
+            <% exp.responsibilities.split('\n').forEach(line => {
+                 const t = line.trim().replace(/^[•▪\-\*]+\s*/, '');
+                 if (t) { %><li><%= t %></li><% } }); %>
+          </ul>
+        <% } %>
+      </div>
+    <% }); %>
+  </div>
+  <% } %>
+
+  <!-- PROJECTS -->
+  <% const projs = (data.projects || []).filter(p => p.name || p.description); %>
+  <% if (projs.length > 0) { %>
+  <div class="section">
+    <div class="section-heading">Projects</div>
+    <% projs.forEach(proj => { %>
+      <div class="entry">
+        <div class="entry-top">
+          <div class="entry-left">
+            <div class="entry-role">
+              <%= proj.name || '' %>
+              <% if (proj.tech && proj.tech.trim()) { %><span style="font-weight:400;font-size:10pt;color:#718096;"> — <%= proj.tech.trim() %></span><% } %>
+            </div>
+            <% if (proj.link && proj.link.trim()) { %><div class="entry-company"><%= proj.link.trim() %></div><% } %>
+          </div>
+          <% if (proj.duration && proj.duration.trim()) { %><div class="entry-duration"><%= proj.duration.trim() %></div><% } %>
+        </div>
+        <% if (proj.description && proj.description.trim()) { %>
+          <ul class="bullets">
+            <% proj.description.split('\n').forEach(line => {
+                 const t = line.trim().replace(/^[•▪\-\*]+\s*/, '');
+                 if (t) { %><li><%= t %></li><% } }); %>
+          </ul>
+        <% } %>
+      </div>
+    <% }); %>
+  </div>
+  <% } %>
+
+  <!-- EDUCATION -->
+  <% const edus = (data.education || []).filter(e => e.degree || e.school); %>
+  <% if (edus.length > 0) { %>
+  <div class="section">
+    <div class="section-heading">Education</div>
+    <% edus.forEach(edu => { %>
+      <div class="edu-entry">
+        <div class="edu-top">
+          <div>
+            <div class="edu-degree">
+              <%= edu.degree || '' %><% if (edu.field && edu.field.trim()) { %> in <%= edu.field.trim() %><% } %>
+            </div>
+            <% if (edu.school && edu.school.trim()) { %><div class="edu-school"><%= edu.school.trim() %></div><% } %>
+            <% if (edu.gpa    && edu.gpa.trim())    { %><div class="edu-meta">GPA: <%= edu.gpa.trim() %></div><% } %>
+          </div>
+          <% if (edu.year && edu.year.trim()) { %><div class="edu-year"><%= edu.year.trim() %></div><% } %>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+  <% } %>
+
+</div>
+</body>
+</html>
