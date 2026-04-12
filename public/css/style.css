@@ -478,8 +478,9 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 
 .tpl-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
   gap: 8px;
+  overflow-x: hidden;
 }
 
 .tpl-opt {
@@ -497,13 +498,15 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
   font-weight: 600;
   color: var(--text-2);
   font-family: var(--font-ui);
+  min-width: 0;
 }
 .tpl-opt:hover { border-color: var(--brand); background: #eff6ff; color: var(--brand); }
 .tpl-opt.active { border-color: var(--brand); background: #eff6ff; color: var(--brand); box-shadow: 0 0 0 3px rgba(30,64,175,.12); }
 
 /* ── Thumbnail canvas ─────────────────────────────────── */
 .tpl-thumb {
-  width: 72px;
+  width: 100%;
+  max-width: 72px;
   height: 88px;
   background: #fff;
   border: 1px solid #e2e8f0;
@@ -663,6 +666,45 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
   background: #0a66c2;
 }
 
+/* Impact thumb */
+.tt-imp-head {
+  height: 8px;
+  border-radius: 2px;
+  background: #111827;
+  width: 82%;
+}
+.tt-imp-sub {
+  height: 4px;
+  border-radius: 2px;
+  background: #0a66c2;
+  width: 64%;
+  margin-bottom: 1px;
+}
+.tt-imp-cols {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.tt-imp-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tt-imp-sec {
+  height: 3px;
+  background: #111827;
+  border-radius: 0;
+}
+.tt-chip {
+  height: 5px;
+  border-radius: 99px;
+  background: #dbeafe;
+}
+.tt-chip-sm {
+  width: 70%;
+}
+
 /* ══════════════════ TEMPLATE PREVIEW OVERRIDES ════════════════════ */
 /* Classic is the default — no overrides needed */
 
@@ -809,6 +851,163 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
   font-size: 9pt;
 }
 
+/* Impact */
+.tpl-impact {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #ffffff;
+  color: #333;
+}
+.tpl-impact .rv-header {
+  text-align: left;
+  border-bottom: none;
+  margin-bottom: 14px;
+  padding-bottom: 0;
+}
+.tpl-impact .rv-name {
+  font-size: 34px;
+  line-height: 1.1;
+  color: #0b0f14;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+.tpl-impact .rv-title {
+  margin-top: 5px;
+  color: #0a66c2;
+  font-size: 17px;
+  font-weight: 700;
+}
+.tpl-impact .rv-contact {
+  margin-top: 7px;
+  color: #3f4854;
+  font-size: 13px;
+}
+.tpl-impact .rv-contact-sep {
+  color: #9ca3af;
+}
+.tpl-impact .rv-impact-layout {
+  display: grid;
+  grid-template-columns: 1.42fr 0.95fr;
+  gap: 24px;
+}
+.tpl-impact .rv-impact-section {
+  margin-bottom: 14px;
+}
+.tpl-impact .rv-impact-section-title {
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  border-bottom: 3px solid #111827;
+  margin-bottom: 8px;
+  padding-bottom: 1px;
+}
+.tpl-impact .rv-summary {
+  color: #4b5563;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.tpl-impact .rv-entry {
+  margin-bottom: 11px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #cfd3da;
+}
+.tpl-impact .rv-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.tpl-impact .rv-entry-role {
+  color: #111827;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.tpl-impact .rv-entry-company {
+  color: #0a66c2;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.tpl-impact .rv-entry-duration {
+  color: #5f6773;
+  font-size: 12px;
+  font-weight: 600;
+}
+.tpl-impact .rv-bullets {
+  margin-top: 4px;
+  padding-left: 18px;
+}
+.tpl-impact .rv-bullets li {
+  color: #4b5563;
+  font-size: 11px;
+  line-height: 1.35;
+  margin-bottom: 2px;
+}
+.tpl-impact .rv-edu {
+  padding-bottom: 8px;
+  margin-bottom: 9px;
+  border-bottom: 1px dashed #cfd3da;
+}
+.tpl-impact .rv-edu:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.tpl-impact .rv-edu-degree {
+  color: #111827;
+  font-size: 15px;
+  line-height: 1.2;
+}
+.tpl-impact .rv-edu-school {
+  color: #0a66c2;
+  font-style: normal;
+  font-weight: 700;
+}
+.tpl-impact .rv-edu-year,
+.tpl-impact .rv-edu-meta {
+  color: #5f6773;
+  font-size: 11px;
+}
+.tpl-impact .rv-impact-ach {
+  border-bottom: 1px dashed #cfd3da;
+  margin-bottom: 10px;
+  padding-bottom: 9px;
+}
+.tpl-impact .rv-impact-ach:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.tpl-impact .rv-impact-ach-title {
+  color: #111827;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.tpl-impact .rv-impact-ach-text {
+  color: #4b5563;
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 3px;
+}
+.tpl-impact .rv-impact-skill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tpl-impact .rv-impact-skill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid #d3d8e2;
+  background: #fafafa;
+  color: #2f3742;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .rv-link {
   color: #0a66c2;
   text-decoration: none;
@@ -836,6 +1035,7 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
   .form-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); height: auto; overflow: visible; }
   .preview-panel { min-height: 600px; }
   .a4-page { width: 100%; min-height: auto; }
+  .tpl-impact .rv-impact-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 560px) {

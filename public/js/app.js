@@ -326,11 +326,16 @@ function buildResumeHTML(d) {
     .trim()
     .replace(/^https?:\/\//i, '')
     .replace(/\/$/, '');
+  const templateId = d.templateId || 'classic';
+
+  if (templateId === 'impact') {
+    return buildImpactResumeHTML(d, { esc, normalizeUrl, formatUrlLabel });
+  }
 
   let html = '';
 
   // ── Header ──────────────────────────────────────────────────────────────────
-  const isMinimalTpl = (d.templateId || 'classic') === 'minimal';
+  const isMinimalTpl = templateId === 'minimal';
   const sepChar      = isMinimalTpl ? '\u00B7' : '|';
   const linkedinUrl  = normalizeUrl(d.linkedin);
   const websiteUrl   = normalizeUrl(d.website);
@@ -465,7 +470,197 @@ function buildResumeHTML(d) {
   return html;
 }
 
-// ═══════════════════════ LOCAL STORAGE ═══════════════════════════════════════
+function buildImpactResumeHTML(d, helpers) {
+  const { esc, normalizeUrl, formatUrlLabel } = helpers;
+  const linkedinUrl = normalizeUrl(d.linkedin);
+  const websiteUrl = normalizeUrl(d.website);
+
+  const contactParts = [
+    d.phone ? `Phone: ${esc(d.phone)}` : null,
+    d.email ? esc(d.email) : null,
+    linkedinUrl ? `<a class="rv-link" href="${esc(linkedinUrl)}" target="_blank" rel="noopener">LinkedIn</a>` : null,
+    d.location ? esc(d.location) : null,
+    websiteUrl ? `<a class="rv-link rv-link-pill" href="${esc(websiteUrl)}" target="_blank" rel="noopener">Portfolio</a>` : null
+  ].filter(Boolean);
+
+  const exps = (d.experience || []).filter(e => e.company || e.role || e.responsibilities);
+  const projs = (d.projects || []).filter(p => p.name || p.description);
+  const edus = (d.education || []).filter(e => e.degree || e.school);
+
+  const firstMeaningfulLine = (text) => {
+    if (!text || typeof text !== 'string') return '';
+    const line = text
+      .replace(/\r\n/g, '\n')
+      .split('\n')
+      .map(item => item.trim().replace(/^[-*]+\s*/, ''))
+      .find(Boolean);
+    return line || '';
+  };
+
+  const highlights = [];
+  projs.forEach((proj) => {
+    if (highlights.length >= 3) return;
+    const title = (proj.name || '').trim();
+    const detail = firstMeaningfulLine(proj.description || proj.tech || '');
+    if (title || detail) {
+      highlights.push({
+        title: title || 'Project Outcome',
+        text: detail || 'Delivered measurable business value through engineering improvements.'
+      });
+    }
+  });
+
+  if (!highlights.length) {
+    exps.forEach((exp) => {
+      if (highlights.length >= 3) return;
+      const title = (exp.role || exp.company || '').trim();
+      const detail = firstMeaningfulLine(exp.responsibilities || '');
+      if (title || detail) {
+        highlights.push({
+          title: title || 'Delivery Highlight',
+          text: detail || 'Contributed to core backend and platform delivery improvements.'
+        });
+      }
+    });
+  }
+
+  const skillTokensRaw = (d.skills || '')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .flatMap((line) => {
+      const colon = line.indexOf(':');
+      const items = colon >= 0 ? line.substring(colon + 1) : line;
+      return items
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+    });
+
+  const seen = new Set();
+  const skillTokens = skillTokensRaw.filter((token) => {
+    const key = token.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 28);
+
+  let html = '';
+  html += `<div class="rv-header rv-impact-header">`;
+  if (d.name) html += `<div class="rv-name">${esc(d.name)}</div>`;
+  if (d.title) html += `<div class="rv-title">${esc(d.title)}</div>`;
+  if (contactParts.length) {
+    html += `<div class="rv-contact">`;
+    html += contactParts.map((part, index) =>
+      part + (index < contactParts.length - 1 ? `<span class="rv-contact-sep">|</span>` : '')
+    ).join('');
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="rv-impact-layout">`;
+  html += `<div class="rv-impact-left">`;
+
+  if (d.summary && d.summary.trim()) {
+    html += `<div class="rv-impact-section"><div class="rv-impact-section-title">Summary</div><p class="rv-summary">${esc(d.summary.trim())}</p></div>`;
+  }
+
+  if (exps.length) {
+    html += `<div class="rv-impact-section"><div class="rv-impact-section-title">Experience</div>`;
+    exps.forEach((exp) => {
+      html += `<div class="rv-entry">`;
+      html += `<div class="rv-entry-top"><div>`;
+      if (exp.role) html += `<div class="rv-entry-role">${esc(exp.role)}</div>`;
+      if (exp.company) html += `<div class="rv-entry-company">${esc(exp.company)}</div>`;
+      html += `</div>`;
+      if (exp.duration) html += `<div class="rv-entry-duration">${esc(exp.duration)}</div>`;
+      html += `</div>`;
+      if (exp.responsibilities && exp.responsibilities.trim()) {
+        html += `<ul class="rv-bullets">`;
+        exp.responsibilities.split('\n').forEach((line) => {
+          const bullet = line.trim().replace(/^[-*]+\s*/, '');
+          if (bullet) html += `<li>${esc(bullet)}</li>`;
+        });
+        html += `</ul>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (edus.length) {
+    html += `<div class="rv-impact-section"><div class="rv-impact-section-title">Education</div>`;
+    edus.forEach((edu) => {
+      html += `<div class="rv-edu"><div class="rv-edu-top"><div>`;
+      let degreeText = esc(edu.degree || '');
+      if (edu.field) degreeText += ` in ${esc(edu.field)}`;
+      html += `<div class="rv-edu-degree">${degreeText}</div>`;
+      if (edu.school) html += `<div class="rv-edu-school">${esc(edu.school)}</div>`;
+      if (edu.gpa) html += `<div class="rv-edu-meta">GPA: ${esc(edu.gpa)}</div>`;
+      html += `</div>`;
+      if (edu.year) html += `<div class="rv-edu-year">${esc(edu.year)}</div>`;
+      html += `</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  html += `<div class="rv-impact-right">`;
+
+  if (highlights.length) {
+    html += `<div class="rv-impact-section"><div class="rv-impact-section-title">Key Achievements</div>`;
+    highlights.forEach((item) => {
+      html += `<div class="rv-impact-ach">`;
+      html += `<div class="rv-impact-ach-title">${esc(item.title)}</div>`;
+      html += `<p class="rv-impact-ach-text">${esc(item.text)}</p>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (skillTokens.length) {
+    html += `<div class="rv-impact-section"><div class="rv-impact-section-title">Skills</div>`;
+    html += `<div class="rv-impact-skill-grid">`;
+    skillTokens.forEach((skill) => {
+      html += `<span class="rv-impact-skill">${esc(skill)}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (projs.length) {
+    html += `<div class="rv-impact-section"><div class="rv-impact-section-title">Projects</div>`;
+    projs.forEach((proj) => {
+      html += `<div class="rv-entry">`;
+      html += `<div class="rv-entry-top"><div>`;
+      if (proj.name) html += `<div class="rv-entry-role">${esc(proj.name)}</div>`;
+      if (proj.link) {
+        const projectUrl = normalizeUrl(proj.link);
+        html += `<div class="rv-entry-company"><a class="rv-link" href="${esc(projectUrl)}" target="_blank" rel="noopener">${esc(formatUrlLabel(proj.link))}</a></div>`;
+      } else if (proj.tech) {
+        html += `<div class="rv-entry-company">${esc(proj.tech)}</div>`;
+      }
+      html += `</div>`;
+      if (proj.duration) html += `<div class="rv-entry-duration">${esc(proj.duration)}</div>`;
+      html += `</div>`;
+      if (proj.description && proj.description.trim()) {
+        html += `<ul class="rv-bullets">`;
+        proj.description.split('\n').forEach((line) => {
+          const bullet = line.trim().replace(/^[-*]+\s*/, '');
+          if (bullet) html += `<li>${esc(bullet)}</li>`;
+        });
+        html += `</ul>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  html += `</div>`;
+
+  return html;
+}
+// ----------------------- LOCAL STORAGE ═══════════════════════════════════════
 
 const STORAGE_KEY = 'resumeBuilderData';
 
@@ -699,5 +894,6 @@ function showOverlay(msg) {
 function hideOverlay() {
   overlay.classList.remove('active');
 }
+
 
 

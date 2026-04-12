@@ -9,6 +9,7 @@
     const isExecutive = tplId === 'executive';
     const isMinimal   = tplId === 'minimal';
     const isLinkedin  = tplId === 'linkedin';
+    const isImpact    = tplId === 'impact';
     const normalizeUrl = (value) => {
       const raw = typeof value === 'string' ? value.trim() : '';
       if (!raw) return '';
@@ -242,6 +243,159 @@
     .entry-duration,
     .edu-year { font-size: 9pt; }
     <% } %>
+
+    <% if (isImpact) { %>
+    /* ── IMPACT (two-column, achievement-first) ───────────── */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      color: #333;
+    }
+    .resume {
+      background: #ffffff;
+      max-width: 860px;
+      padding: 22px 24px;
+    }
+    .resume-header {
+      text-align: left;
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 12px;
+    }
+    .r-name {
+      font-size: 34pt;
+      font-weight: 800;
+      line-height: 1.08;
+      color: #111827;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .r-title {
+      margin-top: 5px;
+      font-size: 15pt;
+      font-weight: 700;
+      color: #0a66c2;
+    }
+    .r-contact {
+      margin-top: 7px;
+      color: #48515d;
+      font-size: 9.5pt;
+    }
+    .r-sep { color: #99a1ac; margin: 0 5px; }
+    .impact-layout {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+    .impact-left,
+    .impact-right {
+      display: table-cell;
+      vertical-align: top;
+    }
+    .impact-left {
+      width: 60%;
+      padding-right: 18px;
+    }
+    .impact-right {
+      width: 40%;
+      padding-left: 12px;
+    }
+    .impact-section {
+      margin-bottom: 12px;
+    }
+    .impact-title {
+      color: #111827;
+      font-size: 15pt;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      border-bottom: 2px solid #111827;
+      margin-bottom: 7px;
+      line-height: 1.15;
+    }
+    .summary-text {
+      color: #4b5563;
+      font-size: 11pt;
+      line-height: 1.42;
+    }
+    .entry,
+    .edu-entry {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #cfd3da;
+    }
+    .entry:last-child,
+    .edu-entry:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .entry-role {
+      font-size: 14pt;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.2;
+    }
+    .entry-company,
+    .edu-school {
+      color: #0a66c2;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 10.5pt;
+    }
+    .entry-duration,
+    .edu-year,
+    .edu-meta {
+      color: #5f6773;
+      font-size: 9.5pt;
+    }
+    .bullets { margin-top: 4px; padding-left: 18px; }
+    .bullets li {
+      color: #4b5563;
+      font-size: 10.5pt;
+      line-height: 1.35;
+      margin-bottom: 2px;
+    }
+    .impact-ach {
+      border-bottom: 1px dashed #cfd3da;
+      margin-bottom: 9px;
+      padding-bottom: 8px;
+    }
+    .impact-ach:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .impact-ach-title {
+      font-size: 12.5pt;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.2;
+    }
+    .impact-ach-text {
+      color: #4b5563;
+      font-size: 10.5pt;
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+    .impact-skill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .impact-skill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #d3d8e2;
+      background: #fafafa;
+      color: #2f3742;
+      font-size: 9.5pt;
+      font-weight: 700;
+      line-height: 1;
+    }
+    <% } %>
   </style>
 </head>
 <body>
@@ -279,6 +433,174 @@
     <% } %>
   </div>
 
+  <% if (isImpact) { %>
+  <%
+    const expsImpact = (data.experience || []).filter(e => e.company || e.role || e.responsibilities);
+    const projsImpact = (data.projects || []).filter(p => p.name || p.description);
+    const edusImpact = (data.education || []).filter(e => e.degree || e.school);
+    const firstMeaningfulLine = (text) => {
+      if (typeof text !== 'string' || !text.trim()) return '';
+      const line = text.replace(/\r\n/g, '\n')
+        .split('\n')
+        .map(item => item.trim().replace(/^[-*]+\s*/, ''))
+        .find(Boolean);
+      return line || '';
+    };
+
+    const impactHighlights = [];
+    projsImpact.forEach((proj) => {
+      if (impactHighlights.length >= 3) return;
+      const title = (proj.name || '').trim();
+      const detail = firstMeaningfulLine(proj.description || proj.tech || '');
+      if (title || detail) {
+        impactHighlights.push({
+          title: title || 'Project Outcome',
+          text: detail || 'Delivered measurable business value through engineering improvements.'
+        });
+      }
+    });
+
+    if (!impactHighlights.length) {
+      expsImpact.forEach((exp) => {
+        if (impactHighlights.length >= 3) return;
+        const title = (exp.role || exp.company || '').trim();
+        const detail = firstMeaningfulLine(exp.responsibilities || '');
+        if (title || detail) {
+          impactHighlights.push({
+            title: title || 'Delivery Highlight',
+            text: detail || 'Contributed to core backend and platform delivery improvements.'
+          });
+        }
+      });
+    }
+
+    const impactSkillTokensRaw = (typeof data.skills === 'string' ? data.skills : (data.skills || []).join('\n'))
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+      .flatMap((line) => {
+        const colon = line.indexOf(':');
+        const items = colon >= 0 ? line.substring(colon + 1) : line;
+        return items.split(',').map(item => item.trim()).filter(Boolean);
+      });
+
+    const impactSkillSeen = new Set();
+    const impactSkills = impactSkillTokensRaw.filter((skill) => {
+      const key = skill.toLowerCase();
+      if (impactSkillSeen.has(key)) return false;
+      impactSkillSeen.add(key);
+      return true;
+    }).slice(0, 28);
+  %>
+
+  <div class="impact-layout">
+    <div class="impact-left">
+      <% if (data.summary && data.summary.trim()) { %>
+      <div class="impact-section">
+        <div class="impact-title">Summary</div>
+        <p class="summary-text"><%= data.summary.trim() %></p>
+      </div>
+      <% } %>
+
+      <% if (expsImpact.length > 0) { %>
+      <div class="impact-section">
+        <div class="impact-title">Experience</div>
+        <% expsImpact.forEach(exp => { %>
+          <div class="entry">
+            <div class="entry-top">
+              <div class="entry-left">
+                <% if (exp.role) { %><div class="entry-role"><%= exp.role %></div><% } %>
+                <% if (exp.company) { %><div class="entry-company"><%= exp.company %></div><% } %>
+              </div>
+              <% if (exp.duration && exp.duration.trim()) { %><div class="entry-duration"><%= exp.duration.trim() %></div><% } %>
+            </div>
+            <% if (exp.responsibilities && exp.responsibilities.trim()) { %>
+              <ul class="bullets">
+                <% exp.responsibilities.split('\n').forEach(line => {
+                     const t = line.trim().replace(/^[-*]+\s*/, '');
+                     if (t) { %><li><%= t %></li><% } }); %>
+              </ul>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+      <% } %>
+
+      <% if (edusImpact.length > 0) { %>
+      <div class="impact-section">
+        <div class="impact-title">Education</div>
+        <% edusImpact.forEach(edu => { %>
+          <div class="edu-entry">
+            <div class="edu-top">
+              <div>
+                <div class="edu-degree">
+                  <%= edu.degree || '' %><% if (edu.field && edu.field.trim()) { %> in <%= edu.field.trim() %><% } %>
+                </div>
+                <% if (edu.school && edu.school.trim()) { %><div class="edu-school"><%= edu.school.trim() %></div><% } %>
+                <% if (edu.gpa && edu.gpa.trim()) { %><div class="edu-meta">GPA: <%= edu.gpa.trim() %></div><% } %>
+              </div>
+              <% if (edu.year && edu.year.trim()) { %><div class="edu-year"><%= edu.year.trim() %></div><% } %>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+      <% } %>
+    </div>
+
+    <div class="impact-right">
+      <% if (impactHighlights.length > 0) { %>
+      <div class="impact-section">
+        <div class="impact-title">Key Achievements</div>
+        <% impactHighlights.forEach(item => { %>
+          <div class="impact-ach">
+            <div class="impact-ach-title"><%= item.title %></div>
+            <p class="impact-ach-text"><%= item.text %></p>
+          </div>
+        <% }); %>
+      </div>
+      <% } %>
+
+      <% if (impactSkills.length > 0) { %>
+      <div class="impact-section">
+        <div class="impact-title">Skills</div>
+        <div class="impact-skill-grid">
+          <% impactSkills.forEach(skill => { %><span class="impact-skill"><%= skill %></span><% }) %>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (projsImpact.length > 0) { %>
+      <div class="impact-section">
+        <div class="impact-title">Projects</div>
+        <% projsImpact.forEach(proj => { %>
+          <div class="entry">
+            <div class="entry-top">
+              <div class="entry-left">
+                <% if (proj.name) { %><div class="entry-role"><%= proj.name %></div><% } %>
+                <% if (proj.link && proj.link.trim()) { %>
+                  <% const projectUrl = normalizeUrl(proj.link); %>
+                  <div class="entry-company"><a class="r-link" href="<%= projectUrl %>" target="_blank" rel="noopener"><%= formatUrlLabel(proj.link) %></a></div>
+                <% } else if (proj.tech && proj.tech.trim()) { %>
+                  <div class="entry-company"><%= proj.tech.trim() %></div>
+                <% } %>
+              </div>
+              <% if (proj.duration && proj.duration.trim()) { %><div class="entry-duration"><%= proj.duration.trim() %></div><% } %>
+            </div>
+            <% if (proj.description && proj.description.trim()) { %>
+              <ul class="bullets">
+                <% proj.description.split('\n').forEach(line => {
+                     const t = line.trim().replace(/^[-*]+\s*/, '');
+                     if (t) { %><li><%= t %></li><% } }); %>
+              </ul>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <% } else { %>
   <!-- SUMMARY -->
   <% if (data.summary && data.summary.trim()) { %>
   <div class="section">
@@ -391,6 +713,7 @@
   </div>
   <% } %>
 
+  <% } %>
 </div>
 </body>
 </html>
