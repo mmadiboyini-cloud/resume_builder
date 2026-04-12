@@ -478,7 +478,7 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 
 .tpl-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
 
@@ -619,6 +619,50 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 }
 .tt-min-line { background: #d1d5db !important; }
 
+/* LinkedIn thumb */
+.tt-li-top {
+  height: 10px;
+  border-radius: 2px;
+  background: #0a66c2;
+  margin: -6px -6px 2px -6px;
+}
+.tt-li-name {
+  height: 7px;
+  border-radius: 2px;
+  background: #1f2937;
+  width: 70%;
+}
+.tt-li-title {
+  height: 4px;
+  border-radius: 2px;
+  background: #64748b;
+  width: 58%;
+}
+.tt-li-chip {
+  height: 6px;
+  border-radius: 99px;
+  background: #dbeafe;
+  width: 45%;
+  margin-bottom: 2px;
+}
+.tt-li-sec {
+  height: 4px;
+  border-radius: 0;
+  background: transparent;
+  border-left: 3px solid #0a66c2;
+  margin: 1px 0;
+  position: relative;
+}
+.tt-li-sec::after {
+  content: '';
+  display: block;
+  margin-left: 3px;
+  height: 3px;
+  width: 44%;
+  border-radius: 2px;
+  background: #0a66c2;
+}
+
 /* ══════════════════ TEMPLATE PREVIEW OVERRIDES ════════════════════ */
 /* Classic is the default — no overrides needed */
 
@@ -703,10 +747,97 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 .tpl-minimal .rv-edu-school    { font-style: normal; color: #6b7280; }
 .tpl-minimal .rv-edu-year      { color: #9ca3af; }
 
+/* LinkedIn */
+.tpl-linkedin {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.tpl-linkedin .rv-header {
+  text-align: left;
+  border-bottom: 1px solid #d6deea;
+  margin: -36px -44px 16px -44px;
+  padding: 20px 44px 14px;
+  background: linear-gradient(180deg, #e8f3ff 0, #ffffff 100%);
+}
+.tpl-linkedin .rv-name {
+  font-size: 24pt;
+  font-weight: 700;
+  color: #172330;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.tpl-linkedin .rv-title {
+  margin-top: 6px;
+  font-size: 11.5pt;
+  color: #425466;
+  font-weight: 600;
+}
+.tpl-linkedin .rv-contact {
+  margin-top: 7px;
+  color: #5f6f82;
+}
+.tpl-linkedin .rv-contact-sep {
+  color: #a0aec0;
+}
+.tpl-linkedin .rv-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 11px 13px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+.tpl-linkedin .rv-section-title {
+  color: #0a66c2;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 8px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 11pt;
+}
+.tpl-linkedin .rv-entry-role,
+.tpl-linkedin .rv-edu-degree,
+.tpl-linkedin .rv-skill-label {
+  color: #1f2d3d;
+}
+.tpl-linkedin .rv-entry-company,
+.tpl-linkedin .rv-edu-school {
+  color: #526274;
+  font-style: normal;
+}
+.tpl-linkedin .rv-entry-duration,
+.tpl-linkedin .rv-edu-year,
+.tpl-linkedin .rv-contact {
+  font-size: 9pt;
+}
+
+.rv-link {
+  color: #0a66c2;
+  text-decoration: none;
+  font-weight: 600;
+}
+.rv-link:hover {
+  text-decoration: underline;
+}
+.rv-link-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid #0a66c2;
+  background: #eef6ff;
+  text-decoration: none;
+}
+.rv-link-pill:hover {
+  background: #dbeafe;
+  text-decoration: none;
+}
+
 /* ═══════════════════════════ RESPONSIVE ════════════════════════════ */
 @media (max-width: 900px) {
   .workspace { flex-direction: column; height: auto; overflow: visible; }
   .form-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); height: auto; overflow: visible; }
   .preview-panel { min-height: 600px; }
   .a4-page { width: 100%; min-height: auto; }
+}
+
+@media (max-width: 560px) {
+  .tpl-grid { grid-template-columns: repeat(3, 1fr); }
 }

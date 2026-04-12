@@ -8,8 +8,18 @@
     const isModern    = tplId === 'modern';
     const isExecutive = tplId === 'executive';
     const isMinimal   = tplId === 'minimal';
+    const isLinkedin  = tplId === 'linkedin';
+    const normalizeUrl = (value) => {
+      const raw = typeof value === 'string' ? value.trim() : '';
+      if (!raw) return '';
+      return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    };
+    const formatUrlLabel = (value) => {
+      const raw = typeof value === 'string' ? value.trim() : '';
+      return raw.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+    };
     // contact separator per template
-    const sep = isMinimal ? ' · ' : ' | ';
+    const sep = isMinimal ? ' \u00B7 ' : ' | ';
   %>
   <style>
     /* ── Reset ──────────────────────────────────────────── */
@@ -44,6 +54,15 @@
     .r-title  { font-size: 11.5pt; color: #4a5568; margin-top: 3px; }
     .r-contact { font-size: 9.5pt; color: #555; margin-top: 6px; }
     .r-sep { color: #aaa; margin: 0 6px; }
+    .r-link { color: #0a66c2; text-decoration: none; font-weight: 600; }
+    .r-link-pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid #0a66c2;
+      background: #eef6ff;
+      text-decoration: none;
+    }
 
     /* ── Sections ───────────────────────────────────────── */
     .section { margin-bottom: 15px; }
@@ -174,6 +193,55 @@
     .edu-school  { font-style: normal; color: #6b7280; }
     .edu-year    { color: #9ca3af; }
     <% } %>
+
+    <% if (isLinkedin) { %>
+    /* ── LINKEDIN (profile-inspired) ───────────────────────── */
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .resume-header {
+      text-align: left;
+      border-bottom: 1px solid #d6deea;
+      margin: -24px -32px 18px -32px;
+      padding: 18px 32px 14px;
+      background: linear-gradient(180deg, #e8f3ff 0, #ffffff 100%);
+    }
+    .r-name {
+      font-size: 24pt;
+      font-weight: 700;
+      color: #172330;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .r-title {
+      margin-top: 6px;
+      font-size: 11.5pt;
+      color: #425466;
+      font-weight: 600;
+    }
+    .r-contact { color: #5f6f82; font-size: 9pt; }
+    .r-sep { color: #a0aec0; margin: 0 4px; }
+    .section {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .section-heading {
+      color: #0a66c2;
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 8px;
+      letter-spacing: 0;
+      text-transform: none;
+      font-size: 11pt;
+    }
+    .entry-role,
+    .edu-degree,
+    .skill-label { color: #1f2d3d; }
+    .entry-company,
+    .edu-school { color: #526274; font-style: normal; }
+    .entry-duration,
+    .edu-year { font-size: 9pt; }
+    <% } %>
   </style>
 </head>
 <body>
@@ -189,15 +257,24 @@
     <% } %>
     <%
       const contactItems = [];
-      if (data.email    && data.email.trim())    contactItems.push(data.email.trim());
-      if (data.phone    && data.phone.trim())    contactItems.push(data.phone.trim());
-      if (data.location && data.location.trim()) contactItems.push(data.location.trim());
-      if (data.linkedin && data.linkedin.trim()) contactItems.push('<a href="' + (data.linkedin.startsWith('http') ? '' : 'https://') + data.linkedin.trim() + '" style="color:inherit;text-decoration:none;">LinkedIn</a>');
-      if (data.website  && data.website.trim())  contactItems.push(data.website.trim());
+      if (data.email    && data.email.trim())    contactItems.push({ type: 'text', value: data.email.trim() });
+      if (data.phone    && data.phone.trim())    contactItems.push({ type: 'text', value: data.phone.trim() });
+      if (data.location && data.location.trim()) contactItems.push({ type: 'text', value: data.location.trim() });
+      const linkedinUrl = normalizeUrl(data.linkedin);
+      if (linkedinUrl) contactItems.push({ type: 'link', value: 'LinkedIn', href: linkedinUrl });
+      const websiteUrl = normalizeUrl(data.website);
+      if (websiteUrl) contactItems.push({ type: 'link', value: 'Portfolio', href: websiteUrl, pill: true });
     %>
     <% if (contactItems.length > 0) { %>
       <div class="r-contact">
-        <%- contactItems.join('<span class="r-sep">' + sep + '</span>') %>
+        <% contactItems.forEach((item, idx) => { %>
+          <% if (item.type === 'link') { %>
+            <a class="r-link<%= item.pill ? ' r-link-pill' : '' %>" href="<%= item.href %>" target="_blank" rel="noopener"><%= item.value %></a>
+          <% } else { %>
+            <%= item.value %>
+          <% } %>
+          <% if (idx < contactItems.length - 1) { %><span class="r-sep"><%= sep %></span><% } %>
+        <% }) %>
       </div>
     <% } %>
   </div>
@@ -273,7 +350,10 @@
               <%= proj.name || '' %>
               <% if (proj.tech && proj.tech.trim()) { %><span style="font-weight:400;font-size:10pt;color:#718096;"> — <%= proj.tech.trim() %></span><% } %>
             </div>
-            <% if (proj.link && proj.link.trim()) { %><div class="entry-company"><%= proj.link.trim() %></div><% } %>
+            <% if (proj.link && proj.link.trim()) { %>
+              <% const projectUrl = normalizeUrl(proj.link); %>
+              <div class="entry-company"><a class="r-link" href="<%= projectUrl %>" target="_blank" rel="noopener"><%= formatUrlLabel(proj.link) %></a></div>
+            <% } %>
           </div>
           <% if (proj.duration && proj.duration.trim()) { %><div class="entry-duration"><%= proj.duration.trim() %></div><% } %>
         </div>
@@ -314,3 +394,4 @@
 </div>
 </body>
 </html>
+

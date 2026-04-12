@@ -38,6 +38,7 @@ const aiKeywords = document.getElementById('ai-ats-keywords');
 document.addEventListener('DOMContentLoaded', () => {
   bindPersonalInfo();
   bindButtons();
+  bindPreviewLinks();
   loadFromStorage();   // restore saved data before first render
   renderPreview();
 });
@@ -80,6 +81,15 @@ function bindButtons() {
       card.classList.add('active');
       renderPreview();
     });
+  });
+}
+
+function bindPreviewLinks() {
+  previewEl.addEventListener('click', (event) => {
+    const link = event.target.closest('a.rv-link');
+    if (!link) return;
+    event.preventDefault();
+    window.open(link.href, '_blank', 'noopener');
   });
 }
 
@@ -273,6 +283,8 @@ function renderPreview() {
   previewEl.className = `a4-page tpl-${resumeData.templateId || 'classic'}`;
 
   const hasContent = resumeData.name || resumeData.title || resumeData.summary
+    || resumeData.email || resumeData.phone || resumeData.location
+    || resumeData.linkedin || resumeData.website
     || resumeData.skills.trim().length
     || resumeData.experience.some(e => e.company || e.role)
     || resumeData.projects.some(p => p.name)
@@ -305,24 +317,30 @@ function buildResumeHTML(d) {
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;');
+  const normalizeUrl = (value) => {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  };
+  const formatUrlLabel = (value) => String(value || '')
+    .trim()
+    .replace(/^https?:\/\//i, '')
+    .replace(/\/$/, '');
 
   let html = '';
 
   // ── Header ──────────────────────────────────────────────────────────────────
   const isMinimalTpl = (d.templateId || 'classic') === 'minimal';
-  const sepChar      = isMinimalTpl ? '·' : '|';
-
-  const liHref = d.linkedin
-    ? (d.linkedin.startsWith('http') ? d.linkedin : 'https://' + d.linkedin)
-    : '';
+  const sepChar      = isMinimalTpl ? '\u00B7' : '|';
+  const linkedinUrl  = normalizeUrl(d.linkedin);
+  const websiteUrl   = normalizeUrl(d.website);
 
   const contactParts = [
     d.email    ? esc(d.email)    : null,
     d.phone    ? esc(d.phone)    : null,
     d.location ? esc(d.location) : null,
-    d.linkedin ? `<a href="${esc(liHref)}" target="_blank" rel="noopener"
-                     style="color:inherit;text-decoration:none;">LinkedIn</a>` : null,
-    d.website  ? esc(d.website)  : null,
+    linkedinUrl ? `<a class="rv-link" href="${esc(linkedinUrl)}" target="_blank" rel="noopener">LinkedIn</a>` : null,
+    websiteUrl  ? `<a class="rv-link rv-link-pill" href="${esc(websiteUrl)}" target="_blank" rel="noopener">Portfolio</a>` : null,
   ].filter(Boolean);
 
   html += `<div class="rv-header">`;
@@ -403,7 +421,10 @@ function buildResumeHTML(d) {
       let roleLine = esc(proj.name || '');
       if (proj.tech) roleLine += ` <span style="font-weight:400;font-size:10pt;color:#718096;">— ${esc(proj.tech)}</span>`;
       html += `<div class="rv-entry-role">${roleLine}</div>`;
-      if (proj.link) html += `<div class="rv-entry-company">${esc(proj.link)}</div>`;
+      if (proj.link) {
+        const projectUrl = normalizeUrl(proj.link);
+        html += `<div class="rv-entry-company"><a class="rv-link" href="${esc(projectUrl)}" target="_blank" rel="noopener">${esc(formatUrlLabel(proj.link))}</a></div>`;
+      }
       html += `</div>`;
       if (proj.duration) html += `<div class="rv-entry-duration">${esc(proj.duration)}</div>`;
       html += `</div>`;
