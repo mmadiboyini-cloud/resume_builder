@@ -342,15 +342,17 @@ router.post('/generate-pdf', async (req, res) => {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
-    const pdf = await page.pdf({
+    const pdfBytes = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { top: '15mm', bottom: '15mm', left: '15mm', right: '15mm' }
     });
+    const pdfBuffer = Buffer.from(pdfBytes);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeFilename(data.name, 'pdf')}"`);
-    res.send(pdf);
+    res.setHeader('Content-Length', String(pdfBuffer.length));
+    res.send(pdfBuffer);
   } catch (err) {
     console.error('PDF generation error:', err);
     res.status(500).json({ error: 'PDF generation failed', details: err.message });
