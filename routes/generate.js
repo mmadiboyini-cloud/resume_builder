@@ -84,6 +84,17 @@ async function launchPdfBrowser() {
   }
 
   const executablePath = await chromium.executablePath();
+  const chromiumDir = path.dirname(executablePath);
+  const libCandidates = [
+    path.join(chromiumDir, 'lib'),
+    chromiumDir,
+    '/tmp',
+    '/tmp/chromium',
+    '/tmp/chromium/lib',
+    process.env.LD_LIBRARY_PATH
+  ].filter(Boolean);
+  process.env.LD_LIBRARY_PATH = Array.from(new Set(libCandidates)).join(':');
+
   return puppeteerCore.launch({
     args: [...chromium.args, ...commonArgs],
     defaultViewport: chromium.defaultViewport,
