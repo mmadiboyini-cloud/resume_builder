@@ -1,7 +1,7 @@
 {
   "functions": {
-    "server.js": {
-      "includeFiles": "node_modules/@sparticuz/chromium/bin/**",
+    "**/*.js": {
+      "includeFiles": "node_modules/@sparticuz/chromium/**",
       "memory": 1024,
       "maxDuration": 60
     }

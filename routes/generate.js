@@ -78,12 +78,16 @@ async function launchPdfBrowser() {
     throw new Error('Missing Vercel Chromium dependencies. Install @sparticuz/chromium and puppeteer-core.');
   }
 
-  const executablePath = await chromium.executablePath();
+  // Use the packaged Chromium bundle explicitly so serverless can unpack all required shared libs.
+  const chromiumPackPath = path.join(process.cwd(), 'node_modules', '@sparticuz', 'chromium', 'bin');
+  const executablePath = await chromium.executablePath(chromiumPackPath);
+  const headlessMode = 'shell';
+
   return puppeteerCore.launch({
-    args: chromium.args,
+    args: puppeteerCore.defaultArgs({ args: chromium.args, headless: headlessMode }),
     defaultViewport: chromium.defaultViewport,
     executablePath,
-    headless: chromium.headless
+    headless: headlessMode
   });
 }
 
