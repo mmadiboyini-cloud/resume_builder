@@ -438,6 +438,7 @@
     const expsImpact = (data.experience || []).filter(e => e.company || e.role || e.responsibilities);
     const projsImpact = (data.projects || []).filter(p => p.name || p.description);
     const edusImpact = (data.education || []).filter(e => e.degree || e.school);
+    const customsImpact = (data.customSections || []).filter(s => s.title || s.itemTitle || s.details);
     const firstMeaningfulLine = (text) => {
       if (typeof text !== 'string' || !text.trim()) return '';
       const line = text.replace(/\r\n/g, '\n')
@@ -544,6 +545,29 @@
           </div>
         <% }); %>
       </div>
+      <% } %>
+
+      <% if (customsImpact.length > 0) { %>
+        <% customsImpact.forEach(section => { %>
+          <div class="impact-section">
+            <div class="impact-title"><%= section.title || 'Additional Information' %></div>
+            <div class="entry">
+              <div class="entry-top">
+                <div class="entry-left">
+                  <% if (section.itemTitle && section.itemTitle.trim()) { %><div class="entry-role"><%= section.itemTitle.trim() %></div><% } %>
+                  <% if (section.itemMeta && section.itemMeta.trim()) { %><div class="entry-company"><%= section.itemMeta.trim() %></div><% } %>
+                </div>
+              </div>
+              <% if (section.details && section.details.trim()) { %>
+                <ul class="bullets">
+                  <% section.details.split('\n').forEach(line => {
+                       const t = line.trim().replace(/^[-*]+\s*/, '');
+                       if (t) { %><li><%= t %></li><% } }); %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
       <% } %>
     </div>
 
@@ -711,6 +735,31 @@
       </div>
     <% }); %>
   </div>
+  <% } %>
+
+  <!-- CUSTOM SECTIONS -->
+  <% const customs = (data.customSections || []).filter(s => s.title || s.itemTitle || s.details); %>
+  <% if (customs.length > 0) { %>
+    <% customs.forEach(section => { %>
+      <div class="section">
+        <div class="section-heading"><%= section.title || 'Additional Information' %></div>
+        <div class="entry">
+          <div class="entry-top">
+            <div class="entry-left">
+              <% if (section.itemTitle && section.itemTitle.trim()) { %><div class="entry-role"><%= section.itemTitle.trim() %></div><% } %>
+              <% if (section.itemMeta && section.itemMeta.trim()) { %><div class="entry-company"><%= section.itemMeta.trim() %></div><% } %>
+            </div>
+          </div>
+          <% if (section.details && section.details.trim()) { %>
+            <ul class="bullets">
+              <% section.details.split('\n').forEach(line => {
+                   const t = line.trim().replace(/^[-*]+\s*/, '');
+                   if (t) { %><li><%= t %></li><% } }); %>
+            </ul>
+          <% } %>
+        </div>
+      </div>
+    <% }); %>
   <% } %>
 
   <% } %>

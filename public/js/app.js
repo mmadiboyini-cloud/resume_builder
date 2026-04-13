@@ -18,18 +18,21 @@ let resumeData = {
   experience: [],      // { id, company, role, duration, responsibilities }[]
   projects:   [],      // { id, name, tech, link, duration, description }[]
   education:  [],      // { id, degree, field, school, year, gpa }[]
+  customSections: [],  // { id, title, itemTitle, itemMeta, details }[]
   templateId: 'classic'
 };
 
 let expCounter  = 0;
 let projCounter = 0;
 let eduCounter  = 0;
+let customCounter = 0;
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────────
 const previewEl  = document.getElementById('resume-preview');
 const expList    = document.getElementById('exp-list');
 const projList   = document.getElementById('proj-list');
 const eduList    = document.getElementById('edu-list');
+const customList = document.getElementById('custom-list');
 const overlay    = document.getElementById('overlay');
 const overlayMsg = document.getElementById('overlay-msg');
 const aiKeywords = document.getElementById('ai-ats-keywords');
@@ -68,6 +71,7 @@ function bindButtons() {
   document.getElementById('btn-add-exp') .addEventListener('click', addExperience);
   document.getElementById('btn-add-proj').addEventListener('click', addProject);
   document.getElementById('btn-add-edu') .addEventListener('click', addEducation);
+  document.getElementById('btn-add-custom').addEventListener('click', addCustomSection);
   document.getElementById('btn-pdf')     .addEventListener('click', downloadPDF);
   document.getElementById('btn-docx')    .addEventListener('click', downloadDocx);
   const enhanceBtn = document.getElementById('btn-ai-enhance');
@@ -266,12 +270,70 @@ function removeEducation(id) {
   renderPreview();
 }
 
+// ═══════════════════════ CUSTOM SECTIONS ═══════════════════════
+function addCustomSection() {
+  const id = ++customCounter;
+  resumeData.customSections.push({ id, title: '', itemTitle: '', itemMeta: '', details: '' });
+  renderCustomBlock(id);
+  updateEmptyHint('custom');
+  renderPreview();
+}
+
+function renderCustomBlock(id, entry = {}) {
+  const block = document.createElement('div');
+  block.className = 'dyn-block';
+  block.id = `custom-block-${id}`;
+  block.innerHTML = `
+    <div class="block-top">
+      <span class="block-label">Custom #${customList.children.length + 1}</span>
+      <button class="btn-remove" onclick="removeCustomSection(${id})">Remove</button>
+    </div>
+    <div class="field">
+      <label>Section Title</label>
+      <input type="text" data-field="title" placeholder="Certifications / Awards / Volunteer Experience"
+        oninput="updateCustom(${id},'title',this.value)" />
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Entry Title</label>
+        <input type="text" data-field="itemTitle" placeholder="AWS Certified Solutions Architect"
+          oninput="updateCustom(${id},'itemTitle',this.value)" />
+      </div>
+      <div class="field">
+        <label>Meta (optional)</label>
+        <input type="text" data-field="itemMeta" placeholder="Issued 2025 / Credential ID 12345"
+          oninput="updateCustom(${id},'itemMeta',this.value)" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Details <span class="hint" style="font-weight:400">(one per line -> auto-bullets)</span></label>
+      <textarea rows="3" data-field="details" placeholder="Built and deployed production workloads on AWS&#10;Validated architecture best practices&#10;Improved system reliability and observability"
+        oninput="updateCustom(${id},'details',this.value)"></textarea>
+    </div>`;
+  customList.appendChild(block);
+  fillBlockValues(block, entry);
+}
+
+function updateCustom(id, field, value) {
+  const entry = resumeData.customSections.find(s => s.id === id);
+  if (entry) { entry[field] = value; renderPreview(); }
+}
+
+function removeCustomSection(id) {
+  resumeData.customSections = resumeData.customSections.filter(s => s.id !== id);
+  const block = document.getElementById(`custom-block-${id}`);
+  if (block) block.remove();
+  updateEmptyHint('custom');
+  renderPreview();
+}
+
 // ─── Empty hint helper ────────────────────────────────────────────────────────
 function updateEmptyHint(type) {
   const map = {
     exp:  { list: expList,  hint: document.getElementById('exp-empty')  },
     proj: { list: projList, hint: document.getElementById('proj-empty') },
-    edu:  { list: eduList,  hint: document.getElementById('edu-empty')  }
+    edu:  { list: eduList,  hint: document.getElementById('edu-empty')  },
+    custom: { list: customList, hint: document.getElementById('custom-empty') }
   };
   const { list, hint } = map[type];
   hint.classList.toggle('hidden', list.children.length > 0);
@@ -288,7 +350,8 @@ function renderPreview() {
     || resumeData.skills.trim().length
     || resumeData.experience.some(e => e.company || e.role)
     || resumeData.projects.some(p => p.name)
-    || resumeData.education.some(e => e.degree || e.school);
+    || resumeData.education.some(e => e.degree || e.school)
+    || resumeData.customSections.some(s => s.title || s.itemTitle || s.details);
 
   if (!hasContent) {
     previewEl.innerHTML = `
@@ -467,6 +530,31 @@ function buildResumeHTML(d) {
     html += `</div>`;
   }
 
+  // ── Custom sections ─────────────────────────────────────────────────────────
+  const customs = (d.customSections || []).filter(s => s.title || s.itemTitle || s.details);
+  if (customs.length) {
+    customs.forEach(section => {
+      html += `<div class="rv-section"><div class="rv-section-title">${esc(section.title || 'Additional Information')}</div>`;
+      html += `<div class="rv-entry">`;
+      html += `<div class="rv-entry-top">`;
+      html += `<div>`;
+      if (section.itemTitle) html += `<div class="rv-entry-role">${esc(section.itemTitle)}</div>`;
+      if (section.itemMeta) html += `<div class="rv-entry-company">${esc(section.itemMeta)}</div>`;
+      html += `</div>`;
+      html += `</div>`;
+      if (section.details && section.details.trim()) {
+        html += `<ul class="rv-bullets">`;
+        section.details.split('\n').forEach(line => {
+          const t = line.trim().replace(/^[-*]+\s*/, '');
+          if (t) html += `<li>${esc(t)}</li>`;
+        });
+        html += `</ul>`;
+      }
+      html += `</div>`;
+      html += `</div>`;
+    });
+  }
+
   return html;
 }
 
@@ -486,6 +574,7 @@ function buildImpactResumeHTML(d, helpers) {
   const exps = (d.experience || []).filter(e => e.company || e.role || e.responsibilities);
   const projs = (d.projects || []).filter(p => p.name || p.description);
   const edus = (d.education || []).filter(e => e.degree || e.school);
+  const customs = (d.customSections || []).filter(s => s.title || s.itemTitle || s.details);
 
   const firstMeaningfulLine = (text) => {
     if (!text || typeof text !== 'string') return '';
@@ -604,6 +693,27 @@ function buildImpactResumeHTML(d, helpers) {
     html += `</div>`;
   }
 
+  if (customs.length) {
+    customs.forEach(section => {
+      html += `<div class="rv-impact-section"><div class="rv-impact-section-title">${esc(section.title || 'Additional Information')}</div>`;
+      html += `<div class="rv-entry">`;
+      html += `<div class="rv-entry-top"><div>`;
+      if (section.itemTitle) html += `<div class="rv-entry-role">${esc(section.itemTitle)}</div>`;
+      if (section.itemMeta) html += `<div class="rv-entry-company">${esc(section.itemMeta)}</div>`;
+      html += `</div></div>`;
+      if (section.details && section.details.trim()) {
+        html += `<ul class="rv-bullets">`;
+        section.details.split('\n').forEach((line) => {
+          const bullet = line.trim().replace(/^[-*]+\s*/, '');
+          if (bullet) html += `<li>${esc(bullet)}</li>`;
+        });
+        html += `</ul>`;
+      }
+      html += `</div>`;
+      html += `</div>`;
+    });
+  }
+
   html += `</div>`;
   html += `<div class="rv-impact-right">`;
 
@@ -719,10 +829,19 @@ function loadFromStorage() {
     renderEduBlock(entry.id, entry);
   });
 
+  (saved.customSections || []).forEach(entry => {
+    const id = Number.isFinite(entry.id) ? entry.id : (++customCounter);
+    customCounter = Math.max(customCounter, id);
+    const normalized = { ...entry, id };
+    resumeData.customSections.push(normalized);
+    renderCustomBlock(id, normalized);
+  });
+
   // Sync empty-hint visibility for restored sections
   updateEmptyHint('exp');
   updateEmptyHint('proj');
   updateEmptyHint('edu');
+  updateEmptyHint('custom');
 }
 
 // Fills [data-field] inputs/textareas inside a dynamic block with saved values
@@ -797,6 +916,7 @@ function applyEnhancedData(data) {
   syncDynamicBlocksFromState(resumeData.experience, 'exp-block');
   syncDynamicBlocksFromState(resumeData.projects, 'proj-block');
   syncDynamicBlocksFromState(resumeData.education, 'edu-block');
+  syncDynamicBlocksFromState(resumeData.customSections, 'custom-block');
 }
 
 async function enhanceResumeWithAI() {
