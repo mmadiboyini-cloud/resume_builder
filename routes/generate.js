@@ -57,6 +57,41 @@ if (typeof Blob === 'undefined') {
   }
 }
 
+function isVercelRuntime() {
+  return Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+}
+
+async function launchPdfBrowser() {
+  const commonArgs = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
+
+  if (!isVercelRuntime()) {
+    return puppeteer.launch({
+      headless: true,
+      args: commonArgs
+    });
+  }
+
+  let chromium;
+  let puppeteerCore;
+  try {
+    chromium = require('@sparticuz/chromium');
+    puppeteerCore = require('puppeteer-core');
+  } catch (err) {
+    throw new Error(
+      'Vercel runtime detected but serverless Chromium dependencies are missing. ' +
+      'Install "puppeteer-core" and "@sparticuz/chromium".'
+    );
+  }
+
+  const executablePath = await chromium.executablePath();
+  return puppeteerCore.launch({
+    args: [...chromium.args, ...commonArgs],
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: chromium.headless
+  });
+}
+
 async function renderTemplate(data) {
   const tplPath = path.join(__dirname, '../views/resume.ejs');
   return ejs.renderFile(tplPath, { data });
@@ -298,17 +333,15 @@ router.post('/enhance-resume', async (req, res) => {
 });
 
 router.post('/generate-pdf', async (req, res) => {
+  let browser;
   try {
     const data = req.body;
     const html = await renderTemplate(data);
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-    });
+    browser = await launchPdfBrowser();
 
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
     const pdf = await page.pdf({
       format: 'A4',
@@ -316,14 +349,16 @@ router.post('/generate-pdf', async (req, res) => {
       margin: { top: '15mm', bottom: '15mm', left: '15mm', right: '15mm' }
     });
 
-    await browser.close();
-
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeFilename(data.name, 'pdf')}"`);
     res.send(pdf);
   } catch (err) {
     console.error('PDF generation error:', err);
     res.status(500).json({ error: 'PDF generation failed', details: err.message });
+  } finally {
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
   }
 });
 
