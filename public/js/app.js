@@ -277,6 +277,7 @@ function updateEmptyHint(type) {
   hint.classList.toggle('hidden', list.children.length > 0);
 }
 
+
 // ═══════════════════════ LIVE PREVIEW RENDER ══════════════════════════════════
 function renderPreview() {
   // Always keep the template class in sync on the a4-page wrapper
